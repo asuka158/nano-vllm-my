@@ -20,6 +20,7 @@ def main():
     prompts = [
         "介绍一下你自己",
         "你好",
+        "1+1=?"
     ]
     # for i, prompt in enumerate(prompts):
     #     encoded = tokenizer(prompt, return_tensors="pt", add_special_tokens=False)

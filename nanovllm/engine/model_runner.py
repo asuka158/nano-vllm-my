@@ -11,7 +11,12 @@ from nanovllm.layers.sampler import Sampler
 from nanovllm.utils.context import set_context, get_context, reset_context
 from nanovllm.utils.loader import load_model
 
+"""
+cuda graph 的原理
+sharedmemory ? rank = 0 的不进吗 ?
+"""
 
+# 管理模型的推理，特别是处理分布式推理和显存优化
 class ModelRunner:
 
     def __init__(self, config: Config, rank: int, event: Event | list[Event]):
@@ -20,6 +25,9 @@ class ModelRunner:
         self.block_size = config.kvcache_block_size
         self.enforce_eager = config.enforce_eager
         self.world_size = config.tensor_parallel_size
+        # print(config.tensor_parallel_size)
+        # print(self.world_size)
+        # print(rank)
         self.rank = rank
         self.event = event
 

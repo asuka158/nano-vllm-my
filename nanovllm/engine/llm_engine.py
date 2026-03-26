@@ -14,6 +14,7 @@ from nanovllm.engine.model_runner import ModelRunner
 
 class LLMEngine:
 
+    # 系统初始化阶段，主要处理一些 config
     def __init__(self, model, **kwargs):
         config_fields = {field.name for field in fields(Config)}
         config_kwargs = {k: v for k, v in kwargs.items() if k in config_fields}
@@ -33,18 +34,21 @@ class LLMEngine:
         self.scheduler = Scheduler(config)
         atexit.register(self.exit)
 
+    # 退出
     def exit(self):
         self.model_runner.call("exit")
         del self.model_runner
         for p in self.ps:
             p.join()
 
+    # 用户输入 prompt 变为内部请求 sequence
     def add_request(self, prompt: str | list[int], sampling_params: SamplingParams):
         if isinstance(prompt, str):
             prompt = self.tokenizer.encode(prompt)
         seq = Sequence(prompt, sampling_params)
         self.scheduler.add(seq)
 
+    # 主要的迭代，分为 prefill 和 decode
     def step(self):
         seqs, is_prefill = self.scheduler.schedule()
         token_ids = self.model_runner.call("run", seqs, is_prefill)
@@ -56,6 +60,7 @@ class LLMEngine:
     def is_finished(self):
         return self.scheduler.is_finished()
 
+    # 上层接口，会调用前面的 add_request 以及最关键 step ，并返回输出
     def generate(
         self,
         prompts: list[str] | list[list[int]],

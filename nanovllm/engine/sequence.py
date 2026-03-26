@@ -10,7 +10,7 @@ class SequenceStatus(Enum):
     RUNNING = auto()
     FINISHED = auto()
 
-
+# 一个用户请求在推理系统内部的运行时对象
 class Sequence:
     block_size = 256
     counter = count()
@@ -21,7 +21,9 @@ class Sequence:
         self.token_ids = copy(token_ids)
         self.last_token = token_ids[-1]
         self.num_tokens = len(self.token_ids)
+        # prompt token 长度，初始化后通常不变
         self.num_prompt_tokens = len(token_ids)
+        # 当前 seq 中，被 cache 缓存的 token 数量
         self.num_cached_tokens = 0
         self.block_table = []
         self.temperature = sampling_params.temperature
